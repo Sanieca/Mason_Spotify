@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Playlist</title>
+    <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>My Playlist</h1>
+        
+        <div class="search-container">
+            <form action="/" method="GET">
+                <input type="text" name="search" placeholder="Search by title or artist" value="<%= typeof search !== 'undefined' ? search : '' %>">
+                <button type="submit">Search</button>
+            </form>
+        </div>
+        
+        <!-- Button to Add New Song -->
+        <a href="/add" class="add-song-button">Add New Song</a>
+
+        <div class="song-container">
+          <% if (songs.length === 0) { %>
+              <p>No songs found.</p>
+          <% } else { %>
+              <% songs.forEach(song => { %>
+              <div class="song-card" data-song-id="<%= song.id %>">
+                  <div class="song-image">
+                      <a href="/song/<%= song.id %>">
+                          <img src="<%= song.image %>" alt="<%= song.title %>">
+                      </a>
+                  </div>
+                  <div class="song-info">
+                      <h2><a href="/song/<%= song.id %>"><%= song.title %></a></h2>
+                      <p>by <%= song.artist %></p>
+                      
+                      <!-- Custom Audio Player -->
+                      <div class="audio-player" data-song-id="<%= song.id %>">
+                          <button class="play-pause-btn play" aria-label="Play"></button>
+                          <div class="progress-bar">
+                              <div class="progress"></div>
+                          </div>
+                          <audio src="<%= song.file_path %>"></audio>
+                      </div>
+
+                      <!-- Lyrics Section -->
+                      <div class="lyrics" id="lyrics-<%= song.id %>">
+                          <p><strong>Lyrics:</strong></p>
+                          <p><%= song.lyrics %></p>
+                      </div>
+                  </div>
+              </div>
+              <% }); %>
+          <% } %>
+      </div>
+    </div>
+    
+    <script>
+        // JavaScript for custom audio controls and lyrics display
+        const audioPlayers = document.querySelectorAll('.audio-player');
+        let currentAudio = null;
+        let currentButton = null;
+        let currentLyrics = null;
+
+        audioPlayers.forEach(player => {
+            const playPauseBtn = player.querySelector('.play-pause-btn');
+            const audio = player.querySelector('audio');
+            const progressBar = player.querySelector('.progress-bar');
+            const progress = player.querySelector('.progress');
+            const songCard = player.closest('.song-card');
+            const lyrics = songCard.querySelector('.lyrics');
+
+            // Play/Pause functionality
+            playPauseBtn.addEventListener('click', () => {
+                if (audio.paused) {
+                    // Pause any currently playing audio
+                    if (currentAudio && currentAudio !== audio) {
+                        currentAudio.pause();
+                        if (currentButton) {
+                            currentButton.classList.remove('pause');
+                            currentButton.classList.add('play');
+                        }
+                        if (currentLyrics) {
+                            currentLyrics.classList.remove('show');
+                        }
+                    }
+                    audio.play();
+                    playPauseBtn.classList.remove('play');
+                    playPauseBtn.classList.add('pause');
+                    currentAudio = audio;
+                    currentButton = playPauseBtn;
+                    currentLyrics = lyrics;
+                    lyrics.classList.add('show'); // Show lyrics
+                    songCard.scrollIntoView({ behavior: 'smooth', block: 'center' }); // Scroll to song
+                } else {
+                    audio.pause();
+                    playPauseBtn.classList.remove('pause');
+                    playPauseBtn.classList.add('play');
+                    currentAudio = null;
+                    currentButton = null;
+                    lyrics.classList.remove('show'); // Hide lyrics
+                    currentLyrics = null;
+                }
+            });
+
+            // Update progress bar
+            audio.addEventListener('timeupdate', () => {
+                if (audio.duration) {
+                    const percent = (audio.currentTime / audio.duration) * 100;
+                    progress.style.width = percent + '%';
+                }
+            });
+
+            // Seek functionality
+            progressBar.addEventListener('click', (e) => {
+                const rect = progressBar.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const width = rect.width;
+                const percent = clickX / width;
+                audio.currentTime = percent * audio.duration;
+            });
+
+            // Reset button and hide lyrics when audio ends
+            audio.addEventListener('ended', () => {
+                playPauseBtn.classList.remove('pause');
+                playPauseBtn.classList.add('play');
+                progress.style.width = '0%';
+                lyrics.classList.remove('show');
+                currentAudio = null;
+                currentButton = null;
+                currentLyrics = null;
+            });
+        });
+
+        // Optional: Close lyrics when clicking outside
+        window.addEventListener('click', function(event) {
+            if (!event.target.closest('.song-card')) {
+                if (currentLyrics) {
+                    currentLyrics.classList.remove('show');
+                }
+                if (currentButton) {
+                    currentButton.classList.remove('pause');
+                    currentButton.classList.add('play');
+                }
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio = null;
+                }
+                currentButton = null;
+                currentLyrics = null;
+            }
+        });
+    </script>
+</body>
+</html>

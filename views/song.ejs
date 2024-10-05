@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= song.title %> by <%= song.artist %></title>
+    <link rel="stylesheet" href="/public/styles.css"> <!-- Your stylesheet -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #181818; /* Dark background */
+            margin: 0;
+            padding: 10px;
+            color: #f4f4f4; /* Light text color */
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
+            background: #282828; /* Darker container background */
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); /* Dark shadow */
+        }
+
+        h1 {
+            text-align: center;
+            color: #1db954; /* Spotify green */
+        }
+
+        img {
+            display: block;
+            margin: 20px auto;
+            border-radius: 8px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        audio {
+            display: block;
+            margin: 20px auto;
+            width: 100%;
+            background: #333; /* Darker background for audio player */
+            border-radius: 4px; /* Rounded corners for audio player */
+        }
+
+        .lyrics {
+            background: #333; /* Dark background for lyrics */
+            padding: 15px;
+            border-left: 5px solid #1db954; /* Spotify green border */
+            margin-top: 20px;
+            border-radius: 4px;
+            white-space: pre-wrap; /* Preserve line breaks */
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin: 20px 0;
+            color: #1db954; /* Spotify green */
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .back-link:hover {
+            text-decoration: underline; /* Underline on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><%= song.title %> by <%= song.artist %></h1>
+        <img src="/uploads/1727211998056.jpg" alt="<%= song.title %> cover"> <!-- Use forward slashes -->
+        <p>Image URL: <%= song.image %></p> <!-- Debugging line -->
+        <audio controls>
+            <source src="<%= song.file_path %>" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+        <div class="lyrics">
+            <p><strong>Lyrics:</strong></p>
+            <p><%= song.lyrics %></p>
+        </div>
+        <a class="back-link" href="/">Back to Playlist</a>
+    </div>
+</body>
+</html>
